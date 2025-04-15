@@ -1,28 +1,15 @@
-import java.io.File;
-import java.util.Map;
-import java.util.Properties;
 import java.util.Scanner;
-import java.util.Set;
 
 public class PocProperties {
 
-    private static final String CONFIGURATION_PROPERTIES = "configuration.properties";
-    private static final String SYSTEM_PROPERTIES = "System";
     private static final Scanner scanner = new Scanner(System.in);
-    private static final String FILE_HEADER = "Configuration Properties";
     private static final String KEY = "key";
     private static final String VALUE = "value";
 
     public static void main(String[] args) {
 
-
-        Properties prop = new Properties();
-
-        File file = new File(CONFIGURATION_PROPERTIES);
-
-        if (!file.exists()) {
-            PropertiesAction.storeProperties(prop, CONFIGURATION_PROPERTIES, "Configuration Properties");
-        }
+        PropertiesAction propertiesAction = new PropertiesAction();
+        propertiesAction.verifyProperties();
 
         while (true) {
             showMenu();
@@ -37,20 +24,21 @@ public class PocProperties {
 
             switch (option) {
                 case 1:
-                    PropertiesAction.createProperties(getKeyValue(KEY), getKeyValue(VALUE), CONFIGURATION_PROPERTIES, FILE_HEADER);
+                    propertiesAction.createProperties(getKeyValue(KEY), getKeyValue(VALUE));
                     break;
                 case 2:
-                    PropertiesAction.createProperties(getKeyValue(KEY), getKeyValue(VALUE), SYSTEM_PROPERTIES, FILE_HEADER);
+                    System.setProperty(getKeyValue(KEY), getKeyValue(VALUE));
+                    System.out.println("\nSystem property saved");
                     break;
                 case 3:
-                    PropertiesAction.deleteProperties(CONFIGURATION_PROPERTIES, getKeyValue(KEY));
+                    propertiesAction.deleteProperties(getKeyValue(KEY));
                     break;
                 case 4:
                     String keyProp = getKeyValue(KEY);
                     System.clearProperty(keyProp);
                     break;
                 case 5:
-                    PropertiesAction.printProperties(CONFIGURATION_PROPERTIES);
+                    propertiesAction.printProperties();
                     break;
                 case 6:
                     System.getProperties().forEach((key, value) -> System.out.println(key + "=" + value));

@@ -1,64 +1,44 @@
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Map;
 import java.util.Properties;
 
 public class PropertiesAction {
 
-    private static final String SYSTEM_PROPERTIES = "System";
+    private static final String FILE_HEADER = "Configuration Properties";
+    private static final String CONFIGURATION_PROPERTIES = "configuration.properties";
 
-    public static Properties getSystemProperties() {
-        Properties prop = System.getProperties();
+    public void verifyProperties() {
+        File file = new File(CONFIGURATION_PROPERTIES);
 
-        System.out.println(prop.stringPropertyNames() + "\n");
-
-        System.out.println("--- System Properties ---");
-
-        for (Map.Entry<Object, Object> entry : prop.entrySet()) {
-            System.out.println(entry.getKey() + ": " + entry.getValue());
+        if (!file.exists()) {
+            this.storeProperties(new Properties());
         }
-        return System.getProperties();
     }
 
-    public static void createProperties(String key, String value, String fileName, String fileHeader) {
-        if (fileName.equals(SYSTEM_PROPERTIES)) {
-            System.setProperty(key, value);
-            System.out.println("\nSystem property saved");
-            return;
-        }
+    public void createProperties(String key, String value) {
         Properties prop = new Properties();
         prop.setProperty(key, value);
-        storeProperties(prop, fileName, fileHeader);
+        this.storeProperties(prop);
 
         System.out.println("User information loaded");
     }
 
-    public static void storeProperties(Properties prop, String fileName, String fileHeader) {
+    public void storeProperties(Properties prop) {
         try {
-            FileOutputStream fos = new FileOutputStream(fileName);
-            prop.store(fos, fileHeader);
+            FileOutputStream fos = new FileOutputStream(CONFIGURATION_PROPERTIES);
+            prop.store(fos, FILE_HEADER);
 
-            System.out.println("\nProperties stored on: " + fileName);
+            System.out.println("\nProperties stored on: " + CONFIGURATION_PROPERTIES);
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 
-    public static void updateProperties(String key, String value, String fileName, String fileHeader) {
+    public Properties loadProperties(String fileName) {
         try {
             Properties prop = new Properties();
-            loadProperties(prop, fileName);
-
-            prop.setProperty(key, value);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public static Properties loadProperties(Properties prop, String fileName) {
-        try {
             FileInputStream fis = new FileInputStream(fileName);
             prop.load(fis);
 
@@ -69,15 +49,15 @@ public class PropertiesAction {
         }
     }
 
-    public static void deleteProperties(String fileName, String key) {
-        Properties prop = new Properties();
-        loadProperties(prop, fileName);
+    public void deleteProperties(String key) {
+        Properties prop = loadProperties(CONFIGURATION_PROPERTIES);
         prop.remove(key);
+
+        this.storeProperties(prop);
     }
 
-    public static void printProperties(String fileName) {
-        Properties prop = new Properties();
-        loadProperties(prop, fileName);
+    public void printProperties() {
+        Properties prop = loadProperties(CONFIGURATION_PROPERTIES);
 
         System.out.println("--- Configuration Properties ---");
         prop.forEach((key, value) -> System.out.println(key + "=" + value));
