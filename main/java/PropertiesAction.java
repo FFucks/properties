@@ -3,11 +3,13 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Properties;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class PropertiesAction {
 
     private static final String FILE_HEADER = "Configuration Properties";
     private static final String CONFIGURATION_PROPERTIES = "configuration.properties";
+    private final ReentrantLock lock = new ReentrantLock();
 
     public void verifyProperties() {
         File file = new File(CONFIGURATION_PROPERTIES);
@@ -18,11 +20,15 @@ public class PropertiesAction {
     }
 
     public void createProperties(String key, String value) {
-        Properties prop = new Properties();
-        prop.setProperty(key, value);
-        this.storeProperties(prop);
-
-        System.out.println("User information loaded");
+        lock.lock();
+        try {
+            Properties prop = new Properties();
+            prop.setProperty(key, value);
+            this.storeProperties(prop);
+            System.out.println("User information loaded");
+        } finally {
+            lock.unlock();
+        }
     }
 
     public void storeProperties(Properties prop) {
@@ -50,16 +56,27 @@ public class PropertiesAction {
     }
 
     public void deleteProperties(String key) {
-        Properties prop = loadProperties(CONFIGURATION_PROPERTIES);
-        prop.remove(key);
+        lock.lock();
+        try {
+            Properties prop = loadProperties(CONFIGURATION_PROPERTIES);
+            prop.remove(key);
 
-        this.storeProperties(prop);
+            this.storeProperties(prop);
+        } finally {
+            lock.unlock();
+        }
     }
 
     public void printProperties() {
-        Properties prop = loadProperties(CONFIGURATION_PROPERTIES);
+        lock.lock();
+        try {
+            Properties prop = loadProperties(CONFIGURATION_PROPERTIES);
 
-        System.out.println("--- Configuration Properties ---");
-        prop.forEach((key, value) -> System.out.println(key + "=" + value));
+            System.out.println("--- Configuration Properties ---");
+            prop.forEach((key, value) -> System.out.println(key + "=" + value));
+
+        } finally {
+            lock.unlock();
+        }
     }
 }
