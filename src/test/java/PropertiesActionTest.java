@@ -65,6 +65,7 @@ public class PropertiesActionTest {
 
         // Espera todas as threads terminarem
         executorService.shutdown();
+        assertTrue(executorService.awaitTermination(5, TimeUnit.SECONDS), "Timeout ao esperar as threads terminarem.");
 
         // Pega o resultado final do arquivo
         Properties finalProperties = propertiesAction.loadProperties(CONFIGURATION_PROPERTIES);
